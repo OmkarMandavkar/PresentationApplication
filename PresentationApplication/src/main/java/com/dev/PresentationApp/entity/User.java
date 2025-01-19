@@ -39,11 +39,13 @@ public class User {
 	private String password;
 
 	@Enumerated(EnumType.STRING)
-	private Status status = Status.ACTIVE;
+	private Status status = Status.INACTIVE;
 
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
 	@OneToMany(mappedBy = "user")
 	private List<Presentation> presentations;
+	
+	private Double userTotalScore;
 }

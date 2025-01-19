@@ -7,9 +7,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.dev.PresentationApp.dto.UserRequest;
-import com.dev.PresentationApp.entity.Rating;
 import com.dev.PresentationApp.entity.User;
 import com.dev.PresentationApp.enums.Role;
+import com.dev.PresentationApp.enums.Status;
 import com.dev.PresentationApp.exception.UserNotFoundException;
 import com.dev.PresentationApp.repository.UserRepository;
 
@@ -39,9 +39,18 @@ public class UserService {
 		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new UserNotFoundException("User is not register"));
 		if (user.getPassword().equals(password)) {
+			user.setStatus(Status.ACTIVE);
+			userRepository.save(user);
 			return true;
 		}
 		return false;
+	}
+
+	public void userLogout(String email) {
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new UserNotFoundException("User is not registered"));
+		user.setStatus(Status.INACTIVE);
+		userRepository.save(user);
 	}
 
 	public User updateUser(Integer id, UserRequest userRequest) {

@@ -1,10 +1,7 @@
 package com.dev.PresentationApp.service;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.dev.PresentationApp.entity.Presentation;
@@ -53,8 +50,11 @@ public class RatingService {
 			rating.setUser(user);
 			rating.setPresentation(presentation);
 			rating.setTotalScore(totalScore);
-			presentation.setPresentationStatus(PresentationStatus.COMPLETED);
 			ratingRepository.save(rating);
+			
+			updatePresentationUserTotalScore(pid);
+			presentation.setPresentationStatus(PresentationStatus.COMPLETED);
+			presentationRepository.save(presentation);
 
 			return "Rating successfully added with a total score of " + totalScore;
 		}
@@ -81,6 +81,32 @@ public class RatingService {
 		return Math.round(total * 10) / 10.0;
 	}
 
+	private void updatePresentationUserTotalScore(Integer pid) {
+		// Fetch all ratings for the presentation
+		List<Rating> ratings = ratingRepository.fetchRatingByPid(pid);
+
+		if (ratings.isEmpty()) {
+			throw new IllegalArgumentException("No ratings found for presentation with pid: " + pid);
+		}
+
+		// Calculate the average score using a traditional loop
+		double totalScoreSum = 0.0;
+		for (Rating rating : ratings) {
+			totalScoreSum += rating.getTotalScore();
+		}
+		double averageScore = totalScoreSum / ratings.size();
+
+		// Round the average score to one decimal place
+		averageScore = Math.round(averageScore * 10) / 10.0;
+
+		// Update the userTotalScore of the Presentation entity
+		Presentation presentation = presentationRepository.findById(pid)
+				.orElseThrow(() -> new PresentationNotFoundException("Presentation not found"));
+
+		presentation.setUserTotalScore(averageScore);
+		presentationRepository.save(presentation);
+	}
+
 	public List<Rating> getRatingByPresentation(Integer pid) {
 
 //		Presentation presentation = presentationRepository.findByPid(pid)
@@ -93,13 +119,13 @@ public class RatingService {
 		} else {
 			return ratingRepository.fetchRatingByPid(pid);
 		}
-		
+
 //		if (presentation.getPresentationStatus() == PresentationStatus.ASSIGNED ||presentation.getPresentationStatus() == PresentationStatus.ONGOING) {
 //			return PresentationNotFoundException("Not Completed");
 //		}
 //		else {
 //			return ratingRepository.fetchRatingByPid(pid);
 //		}
-			
+
 	}
 }

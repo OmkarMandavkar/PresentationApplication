@@ -23,19 +23,21 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Presentation {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer pid;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer pid;
 
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
 
-    private String course;
+	private String course;
 
-    private String topic;
+	private String topic;
 
-    @Enumerated(EnumType.STRING)
-    private PresentationStatus presentationStatus;
+	@Enumerated(EnumType.STRING)
+	private PresentationStatus presentationStatus = PresentationStatus.ASSIGNED;
+
+	private Double userTotalScore;
 }

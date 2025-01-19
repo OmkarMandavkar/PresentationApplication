@@ -13,4 +13,5 @@ public interface RatingRepository extends JpaRepository<Rating, Integer> {
 
 	@Query("SELECT r FROM Rating r WHERE r.presentation.pid=:rid")
 	List<Rating> fetchRatingByPid(Integer rid);
+
 }

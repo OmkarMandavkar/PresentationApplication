@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dev.PresentationApp.entity.Presentation;
 import com.dev.PresentationApp.enums.PresentationStatus;
-import com.dev.PresentationApp.enums.Status;
 import com.dev.PresentationApp.service.PresentationService;
 
 @RestController

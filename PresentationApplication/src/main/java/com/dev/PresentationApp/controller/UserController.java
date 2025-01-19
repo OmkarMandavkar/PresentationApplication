@@ -62,6 +62,12 @@ public class UserController {
 		return new ResponseEntity<String>("Invalid Credentials", HttpStatus.BAD_REQUEST);
 	}
 
+	@PostMapping("/logout")
+	public ResponseEntity<String> logout(@RequestParam String email) {
+		userService.userLogout(email);
+		return new ResponseEntity<String>("Logout successful", HttpStatus.OK);
+	}
+
 	/*
 	 * USED TO UPDATE USER DETAILS
 	 * 
@@ -79,17 +85,20 @@ public class UserController {
 	}
 
 	/*
-	 * USED TO DELETE USER DETAILS 
+	 * USED TO DELETE USER DETAILS
+	 * 
 	 * @Param : Integer id
 	 */
-	@DeleteMapping(value = "/delete/{id}")
-	public ResponseEntity<String> deleteUser(@PathVariable Integer id) {
+	@DeleteMapping(value = "/delete")
+	public ResponseEntity<String> deleteUser(@RequestParam Integer id) {
 		String deleteUser = userService.deleteUser(id);
 		return new ResponseEntity<String>(deleteUser, HttpStatus.OK);
 	}
 
-	@GetMapping("/getById/{id}")
-	public ResponseEntity<User> getByUserId(@PathVariable Integer id) {
+	
+	
+	@GetMapping("/getById")
+	public ResponseEntity<User> getByUserId(@RequestParam Integer id) {
 		Optional<User> userData = userService.getByUserId(id);
 		if (userData.isPresent()) {
 			return new ResponseEntity<>(userData.get(), HttpStatus.OK);
@@ -100,9 +109,9 @@ public class UserController {
 
 	@GetMapping("/getAllUserByAdmin")
 	public ResponseEntity<List<User>> getAllUserByAdmin() {
-		List<User> userData = userService.getAllUsersByAdmin(Role.STUDENT); 
+		List<User> userData = userService.getAllUsersByAdmin(Role.STUDENT);
 		if (!userData.isEmpty()) {
-			return new ResponseEntity<>(userData, HttpStatus.OK); 
+			return new ResponseEntity<>(userData, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
