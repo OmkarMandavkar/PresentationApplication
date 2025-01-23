@@ -6,9 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dev.PresentationApp.dto.UserRequest;
 import com.dev.PresentationApp.dto.UserResponse;
 import com.dev.PresentationApp.entity.User;
-import com.dev.PresentationApp.enums.Role;
 import com.dev.PresentationApp.service.UserService;
 
 @RestController
@@ -33,7 +30,8 @@ public class UserController {
 	}
 
 	/*
-	 * USED TO REGISTER USER Input : JSON
+	 * Used to Register User (ADMIN or STUDENT)
+	 * @RequestBody userRequest - JSON
 	 */
 	@PostMapping("/register")
 	public ResponseEntity<String> registerUser(@RequestBody UserRequest userRequest) {
@@ -47,11 +45,8 @@ public class UserController {
 	}
 
 	/*
-	 * USED TO LOGIN USER
-	 * 
-	 * @Param : String email
-	 * 
-	 * @Param : String password
+	 * Used to login user
+	 * @Param : email, @Param : password
 	 */
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password) {
@@ -62,20 +57,13 @@ public class UserController {
 		return new ResponseEntity<String>("Invalid Credentials", HttpStatus.BAD_REQUEST);
 	}
 
-	@PostMapping("/logout")
-	public ResponseEntity<String> logout(@RequestParam String email) {
-		userService.userLogout(email);
-		return new ResponseEntity<String>("Logout successful", HttpStatus.OK);
-	}
-
 	/*
-	 * USED TO UPDATE USER DETAILS
-	 * 
-	 * @Param : Integer id
+	 * Used to update user details
+	 * @Param : id
 	 */
-	@PutMapping(value = "/update/{id}", consumes = { "application/json", "application/xml" }, produces = {
+	@PutMapping(value = "/update", consumes = { "application/json", "application/xml" }, produces = {
 			"application/json", "application/xml" })
-	public ResponseEntity<UserResponse> updateCounsellor(@PathVariable Integer id,
+	public ResponseEntity<UserResponse> updateCounsellor(@RequestParam Integer id,
 			@RequestBody UserRequest userRequest) {
 		User updateUser = userService.updateUser(id, userRequest);
 
@@ -85,35 +73,33 @@ public class UserController {
 	}
 
 	/*
-	 * USED TO DELETE USER DETAILS
-	 * 
-	 * @Param : Integer id
+	 * Used to fetch user details by id
+	 * @Param id
 	 */
-	@DeleteMapping(value = "/delete")
-	public ResponseEntity<String> deleteUser(@RequestParam Integer id) {
-		String deleteUser = userService.deleteUser(id);
-		return new ResponseEntity<String>(deleteUser, HttpStatus.OK);
-	}
-
-	
-	
-	@GetMapping("/getById")
-	public ResponseEntity<User> getByUserId(@RequestParam Integer id) {
+	@GetMapping("/getUserById")
+	public ResponseEntity<?> getUserById(@RequestParam Integer id) {
 		Optional<User> userData = userService.getByUserId(id);
 		if (userData.isPresent()) {
 			return new ResponseEntity<>(userData.get(), HttpStatus.OK);
 		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<String>("User Not Found", HttpStatus.NOT_FOUND);
 		}
 	}
 
-	@GetMapping("/getAllUserByAdmin")
-	public ResponseEntity<List<User>> getAllUserByAdmin() {
-		List<User> userData = userService.getAllUsersByAdmin(Role.STUDENT);
-		if (!userData.isEmpty()) {
-			return new ResponseEntity<>(userData, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
+	/*
+	 * Used to fetch all the record of student if and only if the user is ADMIN
+	 * @Param id 
+	 */
+
+	@GetMapping("/admin/getAllUserByAdmin")
+    public ResponseEntity<?> getStudentsIfAdmin(@RequestParam Integer id) {
+        List<User> studentUsers = userService.getStudentsIfAdmin(id);
+        if (studentUsers.isEmpty()) {
+            return ResponseEntity.status(403).body("Access denied. User is not an ADMIN or no students found.");
+        }
+        return ResponseEntity.ok(studentUsers);
+    }
+	
+	
+	//IMPLEmeET UPDATE STATUS
 }

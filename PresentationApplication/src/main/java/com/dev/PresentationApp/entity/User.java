@@ -1,7 +1,5 @@
 package com.dev.PresentationApp.entity;
 
-import java.util.List;
-
 import com.dev.PresentationApp.enums.Role;
 import com.dev.PresentationApp.enums.Status;
 
@@ -12,7 +10,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,27 +22,24 @@ import lombok.Setter;
 @AllArgsConstructor
 public class User {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-	private String name;
+    private String name;
 
-	@Column(unique = true, nullable = false)
-	private String email;
+    @Column(unique = true, nullable = false)
+    private String email;
 
-	private Long phone;
+    private Long phone;
 
-	private String password;
+    private String password;
 
-	@Enumerated(EnumType.STRING)
-	private Status status = Status.INACTIVE;
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.INACTIVE;
 
-	@Enumerated(EnumType.STRING)
-	private Role role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-	@OneToMany(mappedBy = "user")
-	private List<Presentation> presentations;
-	
-	private Double userTotalScore;
+    private Double userTotalScore;
 }

@@ -18,4 +18,9 @@ public class AppExceptionHandler {
 	public ResponseEntity<String> catchPresentationNotFoundException(PresentationNotFoundException message) {
 		return new ResponseEntity<>(message.getMessage(), HttpStatus.NOT_FOUND);
 	}
+	
+	@ExceptionHandler(RatingNotFoundException.class)
+	public ResponseEntity<String> catchRatingNotFoundException(RatingNotFoundException message) {
+		return new ResponseEntity<>(message.getMessage(), HttpStatus.NOT_FOUND);
+	}
 }

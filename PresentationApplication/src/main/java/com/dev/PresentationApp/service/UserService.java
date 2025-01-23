@@ -1,5 +1,6 @@
 package com.dev.PresentationApp.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,13 +47,6 @@ public class UserService {
 		return false;
 	}
 
-	public void userLogout(String email) {
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new UserNotFoundException("User is not registered"));
-		user.setStatus(Status.INACTIVE);
-		userRepository.save(user);
-	}
-
 	public User updateUser(Integer id, UserRequest userRequest) {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new UserNotFoundException("User Not found/Enter registered id"));
@@ -67,19 +61,36 @@ public class UserService {
 		return userRepository.save(user);
 	}
 
-	public String deleteUser(Integer id) {
-		User user = userRepository.findById(id)
-				.orElseThrow(() -> new UserNotFoundException("User Not found/Enter registered id"));
-		userRepository.delete(user);
-		return "User with id : " + id + " is deleted successfully";
-	}
-
 	public Optional<User> getByUserId(Integer id) {
 		return userRepository.findById(id);
 	}
 
-	public List<User> getAllUsersByAdmin(Role role) {
-		return userRepository.findAllUserByRole(role);
+//	public List<User> getAllUsersByAdmin(Role role) {
+//		return userRepository.findAllUserByRole(role);
+//	}
+
+	public List<User> getStudentsIfAdmin(Integer id) {
+		
+		User checkUser = userRepository.findById(id)
+				.orElseThrow(() -> new UserNotFoundException("User Not found/Enter registered id"));
+
+		
+		Optional<User> optionalUser = userRepository.findById(id);
+
+		if (optionalUser.isPresent()) {
+			User user = optionalUser.get();
+			if (user.getRole() == Role.ADMIN) {
+				List<User> allUsers = userRepository.findAll();
+				List<User> studentUsers = new ArrayList<>();
+				for (User u : allUsers) {
+					if (u.getRole() == Role.STUDENT) {
+						studentUsers.add(u);
+					}
+				}
+				return studentUsers;
+			}
+		}
+		return new ArrayList<>();
 	}
 
 }

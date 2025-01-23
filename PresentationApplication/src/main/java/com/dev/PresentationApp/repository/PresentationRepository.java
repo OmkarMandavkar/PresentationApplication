@@ -9,11 +9,13 @@ import org.springframework.data.jpa.repository.Query;
 import com.dev.PresentationApp.entity.Presentation;
 import com.dev.PresentationApp.enums.Status;
 
-public interface PresentationRepository extends JpaRepository<Presentation, Integer>{
+public interface PresentationRepository extends JpaRepository<Presentation, Integer> {
 
 	Optional<Presentation> findByPid(Integer pid);
-		
+
+	Optional<Presentation> findByCourseAndTopic(String course, String topic);
+
 	@Query("SELECT p FROM Presentation p")
-    List<Presentation> fetchAllPresentation();
-	
+	List<Presentation> fetchAllPresentation();
+
 }
