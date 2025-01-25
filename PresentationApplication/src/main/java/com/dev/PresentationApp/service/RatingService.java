@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.dev.PresentationApp.dto.RatingRequest;
@@ -21,6 +21,8 @@ import com.dev.PresentationApp.exception.UserNotFoundException;
 import com.dev.PresentationApp.repository.PresentationRepository;
 import com.dev.PresentationApp.repository.RatingRepository;
 import com.dev.PresentationApp.repository.UserRepository;
+
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class RatingService {
@@ -40,38 +42,6 @@ public class RatingService {
 		this.presentationRepository = presentationRepository;
 		this.ratingRepository = ratingRepository;
 		this.mailSender = mailSender;
-	}
-
-	public boolean sendEmail(Integer pid, Integer id) {
-
-		try {
-			User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Enter Valid User Id"));
-
-			Presentation presentation = presentationRepository.findByPid(pid)
-					.orElseThrow(() -> new PresentationNotFoundException("Presentation Not found"));
-
-			Rating rating = ratingRepository.findByPidAndId(pid, id)
-					.orElseThrow(() -> new RatingNotFoundException("No rating found"));
-
-			String subjectData = "Dear Candidate," 
-					+ "\nYou have succefully completed the Presentation Assessment"
-					+ "\n\nCOURSE: " + presentation.getCourse() 
-					+ "\nTOPIC: " + presentation.getTopic() + "\nRATING: "
-					+ rating.getTotalScore();
-
-			SimpleMailMessage msg = new SimpleMailMessage();
-			msg.setFrom("omkarmandavkar000@gmail.com");
-			msg.setTo(user.getEmail());
-			msg.setSubject("Presentation Results");
-			msg.setText(subjectData);
-
-			mailSender.send(msg);
-			return true;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
 	}
 
 	public String ratePresentation(Integer pid, Integer id, RatingRequest ratingRequest) {
@@ -101,6 +71,7 @@ public class RatingService {
 
 		ratingRepository.save(ratingData);
 
+		sendRatingViaEmail(pid, id);
 		updateAverageTotalScoreInPresentation(pid);
 		updateAverageTotalScoreInUser(id);
 
@@ -189,6 +160,36 @@ public class RatingService {
 
 		user.setUserTotalScore(averageScore);
 		userRepository.save(user);
+	}
+
+	public void sendRatingViaEmail(Integer pid, Integer id) {
+		try {
+			User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Enter Valid User Id"));
+
+			Presentation presentation = presentationRepository.findByPid(pid)
+					.orElseThrow(() -> new PresentationNotFoundException("Presentation Not found"));
+
+			Rating rating = ratingRepository.findByPidAndId(pid, id)
+					.orElseThrow(() -> new RatingNotFoundException("No rating found"));
+
+			String subjectData = "Dear Candidate," 
+					+ "<br>You have successfully completed the Presentation Assessment"
+					+ "<br><br><b>COURSE:</b> " + presentation.getCourse() 
+					+ "<br><b>TOPIC:</b> " + presentation.getTopic() 
+					+ "<br><b>RATING:</b> " + rating.getTotalScore();
+
+			MimeMessage mimeMessage = mailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+
+			helper.setFrom("omkarmandavkar000@gmail.com");
+			helper.setTo(user.getEmail());
+			helper.setSubject("Presentation Results");
+			helper.setText(subjectData, true); // Set `true` to indicate HTML content
+
+			mailSender.send(mimeMessage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public List<Map<String, Object>> getRatingsForUser(Integer id) {

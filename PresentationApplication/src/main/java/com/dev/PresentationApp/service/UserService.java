@@ -70,11 +70,10 @@ public class UserService {
 //	}
 
 	public List<User> getStudentsIfAdmin(Integer id) {
-		
+
 		User checkUser = userRepository.findById(id)
 				.orElseThrow(() -> new UserNotFoundException("User Not found/Enter registered id"));
 
-		
 		Optional<User> optionalUser = userRepository.findById(id);
 
 		if (optionalUser.isPresent()) {
@@ -93,4 +92,12 @@ public class UserService {
 		return new ArrayList<>();
 	}
 
+	public String updateStatusByUserId(Integer id, Status status) {
+
+		User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("No User Found"));
+
+		user.setStatus(status);
+		userRepository.save(user);
+		return "Status is updated to " + status;
+	}
 }

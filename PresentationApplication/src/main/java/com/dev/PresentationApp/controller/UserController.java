@@ -7,6 +7,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dev.PresentationApp.dto.UserRequest;
 import com.dev.PresentationApp.dto.UserResponse;
 import com.dev.PresentationApp.entity.User;
+import com.dev.PresentationApp.enums.Status;
 import com.dev.PresentationApp.service.UserService;
 
 @RestController
@@ -90,7 +92,6 @@ public class UserController {
 	 * Used to fetch all the record of student if and only if the user is ADMIN
 	 * @Param id 
 	 */
-
 	@GetMapping("/admin/getAllUserByAdmin")
     public ResponseEntity<?> getStudentsIfAdmin(@RequestParam Integer id) {
         List<User> studentUsers = userService.getStudentsIfAdmin(id);
@@ -100,6 +101,13 @@ public class UserController {
         return ResponseEntity.ok(studentUsers);
     }
 	
-	
-	//IMPLEmeET UPDATE STATUS
+	/*
+	 * Used to update User status by ADMIN
+	 * @Param id 
+	 */	
+	@PatchMapping("/updateUserStatus")
+	public ResponseEntity<String> updateUserStatus(@RequestParam Integer id, @RequestParam Status status) {
+		String updateStatus = userService.updateStatusByUserId(id, status);
+		return new ResponseEntity<String>(updateStatus, HttpStatus.OK);
+	}
 }

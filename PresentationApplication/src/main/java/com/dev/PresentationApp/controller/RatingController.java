@@ -63,18 +63,18 @@ public class RatingController {
 		return new ResponseEntity<>(ratings, HttpStatus.OK);
 	}
 
-	/*
-	 * Used to send a email containing presentation totalScore to Student
-	 * @Param: pid, @Param: id
-	 */
-	@PostMapping("/sendEmail")
-	public ResponseEntity<String> sendEmail(@RequestParam Integer pid, @RequestParam Integer id) {
-	    boolean rate = ratingService.sendEmail(pid, id);
-	    if (rate) {
-	        return ResponseEntity.ok("Email sent successfully!");
-	    } else {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error sending email");
-	    }
-	}
+//	/*
+//	 * Used to send a email containing presentation totalScore to Student
+//	 * @Param: pid, @Param: id
+//	 */
+//	@PostMapping("/sendEmail")
+//	public ResponseEntity<String> sendEmail(@RequestParam Integer pid, @RequestParam Integer id) {
+//	    boolean rate = ratingService.sendEmail(pid, id);
+//	    if (rate) {
+//	        return ResponseEntity.ok("Email sent successfully!");
+//	    } else {
+//	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error sending email");
+//	    }
+//	}
 
 }
